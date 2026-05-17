@@ -3,6 +3,7 @@ using HappyCLI.Exceptions;
 using HappyCLI.Reflection;
 using HappyCLI.Runtime;
 using NUnit.Framework;
+using System;
 using System.Collections.Generic;
 
 namespace HappyCLI.Tests;
@@ -13,7 +14,7 @@ public class ReflectedCommandOptionTests
     [Test]
     public void Ctor_WithNullOption_ThrowsInvalidReflectedObjectException()
     {
-        Assert.Throws<InvalidReflectedObjectException>(() => new ReflectedCommandOption(null));
+        Assert.Throws<InvalidReflectedObjectException>((Action)(() => new ReflectedCommandOption(null)));
     }
 
     [Test]
@@ -42,13 +43,13 @@ public class ReflectedCommandOptionTests
     [Test]
     public void Ctor_WithNonCommandOptionObject_ThrowsInvalidReflectedObjectException()
     {
-        Assert.Throws<InvalidReflectedObjectException>(() => new ReflectedCommandOption(""));
+        Assert.Throws<InvalidReflectedObjectException>((Action)(() => new ReflectedCommandOption("")));
     }
 
     [Test]
     public void Ctor_WithCommandOptionObject_NoExceptionThrown()
     {
-        Assert.DoesNotThrow(() => new ReflectedCommandOption(new RecordingOption("name", "Name", nameof(TestOptions.Name))));
+        Assert.DoesNotThrow((Action)(() => new ReflectedCommandOption(new RecordingOption("name", "Name", nameof(TestOptions.Name)))));
     }
 
     [Test]

@@ -2,6 +2,7 @@ using HappyCLI.Configuration.Options;
 using HappyCLI.Exceptions;
 using HappyCLI.Runtime;
 using NUnit.Framework;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -68,7 +69,7 @@ public class BoolOptionTests
     {
         var option = new BoolOption<TestOptions>("debug", "Debug", nameof(TestOptions.Debug));
 
-        Assert.Throws<HappyCLIException>(() => option.ApplyOptionsToCommand(null, new RawOptions(new List<string>())));
+        Assert.Throws<HappyCLIException>((Action)(() => option.ApplyOptionsToCommand(null, new RawOptions([]))));
     }
 
     private class TestOptions

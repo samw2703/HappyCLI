@@ -83,40 +83,40 @@ public class HappyCLIPublicTests
     [Test]
     public void Execute_WhenDependencyMissing_ThrowsInvalidOperationException()
     {
-        Assert.ThrowsAsync<InvalidOperationException>(async () =>
+        Assert.ThrowsAsync<InvalidOperationException>((Func<Task>)(async () =>
             await PublicHappyCLI.Execute(
                 new[] { "arg1" },
                 Array.Empty<Assembly>(),
                 setupCustomServices: services => services.AddSingleton<IHappyCLI>(sp =>
-                    new StubHappyCLI(sp.GetRequiredService<IResultProvider>().Get()))));
+                    new StubHappyCLI(sp.GetRequiredService<IResultProvider>().Get())))));
     }
 
     [Test]
     public void Execute_WhenSetupCustomServicesThrows_BubblesException()
     {
-        Assert.ThrowsAsync<InvalidOperationException>(async () =>
+        Assert.ThrowsAsync<InvalidOperationException>((Func<Task>)(async () =>
             await PublicHappyCLI.Execute(
                 new[] { "arg1" },
                 Array.Empty<Assembly>(),
-                setupCustomServices: _ => throw new InvalidOperationException("setup failure")));
+                setupCustomServices: _ => throw new InvalidOperationException("setup failure"))));
     }
 
     [Test]
     public void Execute_NullArgs_ThrowsNullReferenceException()
     {
-        Assert.ThrowsAsync<NullReferenceException>(async () =>
+        Assert.ThrowsAsync<NullReferenceException>((NUnit.Framework.AsyncTestDelegate)(async () =>
             await PublicHappyCLI.Execute(
                 null!,
-                Array.Empty<Assembly>()));
+                Array.Empty<Assembly>())));
     }
 
     [Test]
     public void Execute_NullAssemblies_ThrowsArgumentNullException()
     {
-        Assert.ThrowsAsync<ArgumentNullException>(async () =>
+        Assert.ThrowsAsync<ArgumentNullException>((NUnit.Framework.AsyncTestDelegate)(async () =>
             await PublicHappyCLI.Execute(
                 new[] { "arg1" },
-                null!));
+                null!)));
     }
 
     [Test]
@@ -124,7 +124,7 @@ public class HappyCLIPublicTests
     {
         IServiceCollection sc = null!;
 
-        Assert.Throws<ArgumentNullException>(() => PublicHappyCLI.AddHappyCLI(sc, Array.Empty<Assembly>()));
+        Assert.Throws<ArgumentNullException>((NUnit.Framework.TestDelegate)(() => PublicHappyCLI.AddHappyCLI(sc, Array.Empty<Assembly>())));
     }
 
     [Test]
@@ -132,7 +132,7 @@ public class HappyCLIPublicTests
     {
         var sc = new ServiceCollection();
 
-        Assert.Throws<ArgumentNullException>(() => sc.AddHappyCLI(null!));
+        Assert.Throws<ArgumentNullException>((NUnit.Framework.TestDelegate)(() => sc.AddHappyCLI(null!)));
     }
 
     [Test]

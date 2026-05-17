@@ -76,13 +76,13 @@ public class HappyCLIRuntimeTests
         Assert.That(result, Is.EqualTo(string.Empty));
         Assert.That(handler.CallCount, Is.EqualTo(1));
         Assert.That(handler.LastCommand, Is.Not.Null);
-        Assert.Multiple(() =>
+        Assert.Multiple((Action)(() =>
         {
             Assert.That(handler.LastCommand!.Name, Is.EqualTo("sam"));
             Assert.That(handler.LastCommand.Count, Is.EqualTo(42));
             Assert.That(handler.LastCommand.Force, Is.True);
             Assert.That(handler.LastCommand.Tags, Is.EqualTo(new List<string> { "first", "second" }));
-        });
+        }));
     }
 
     [Test]
@@ -183,7 +183,7 @@ public class HappyCLIRuntimeTests
         var handler = new ThrowingOptionHandler(new OptionsConfigurationException("invalid option state"));
         var sut = CreateSut(handler);
 
-        var ex = Assert.ThrowsAsync<TargetInvocationException>(async () => await sut.Execute(new[] { "throw-options" }));
+        var ex = Assert.ThrowsAsync<TargetInvocationException>((Func<Task>)(async () => await sut.Execute(new[] { "throw-options" })));
 
         Assert.That(ex!.InnerException, Is.TypeOf<OptionsConfigurationException>());
         Assert.That(ex.InnerException!.Message, Is.EqualTo("invalid option state"));
@@ -195,7 +195,7 @@ public class HappyCLIRuntimeTests
         var handler = new ThrowingOptionHandler(new InvalidReflectedObjectException("broken reflected object"));
         var sut = CreateSut(handler);
 
-        var ex = Assert.ThrowsAsync<TargetInvocationException>(async () => await sut.Execute(new[] { "throw-options" }));
+        var ex = Assert.ThrowsAsync<TargetInvocationException>((Func<Task>)(async () => await sut.Execute(new[] { "throw-options" })));
 
         Assert.That(ex!.InnerException, Is.TypeOf<InvalidReflectedObjectException>());
         Assert.That(ex.InnerException!.Message, Is.EqualTo("broken reflected object"));
@@ -218,7 +218,7 @@ public class HappyCLIRuntimeTests
         var handler = new ExplodingHandler(new InvalidOperationException("dependency failed"));
         var sut = CreateSut(handler);
 
-        var ex = Assert.ThrowsAsync<InvalidOperationException>(async () => await sut.Execute(new[] { "explode" }));
+        var ex = Assert.ThrowsAsync<InvalidOperationException>((Func<Task>)(async () => await sut.Execute(new[] { "explode" })));
 
         Assert.That(ex!.Message, Is.EqualTo("dependency failed"));
     }
@@ -229,7 +229,7 @@ public class HappyCLIRuntimeTests
         var handler = new ExplodingHandler(new OperationCanceledException("cancelled"));
         var sut = CreateSut(handler);
 
-        Assert.ThrowsAsync<OperationCanceledException>(async () => await sut.Execute(new[] { "explode" }));
+        Assert.ThrowsAsync<OperationCanceledException>((Func<Task>)(async () => await sut.Execute(new[] { "explode" })));
     }
 
     [Test]
@@ -238,7 +238,7 @@ public class HappyCLIRuntimeTests
         var handler = new NoOptionsHandler("alpha", "first command");
         var sut = CreateSut(handler);
 
-        Assert.ThrowsAsync<NullReferenceException>(async () => await sut.Execute(null!));
+        Assert.ThrowsAsync<NullReferenceException>((Func<Task>)(async () => await sut.Execute(null!)));
     }
 
     private static RuntimeHappyCLI CreateSut(params object[] handlers)

@@ -2,6 +2,7 @@ using HappyCLI.Configuration.Options;
 using HappyCLI.Exceptions;
 using HappyCLI.Runtime;
 using NUnit.Framework;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -77,7 +78,7 @@ public class StringOptionTests
     {
         var option = new StringOption<TestOptions>("name", "Name", nameof(TestOptions.Name));
 
-        Assert.Throws<HappyCLIException>(() => option.ApplyOptionsToCommand(null, new RawOptions(new List<string>())));
+        Assert.Throws<HappyCLIException>((Action)(() => option.ApplyOptionsToCommand(null, new RawOptions(new List<string>()))));
     }
 
     [Test]

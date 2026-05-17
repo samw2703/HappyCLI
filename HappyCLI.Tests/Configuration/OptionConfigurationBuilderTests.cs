@@ -1,5 +1,6 @@
 using HappyCLI.Exceptions;
 using NUnit.Framework;
+using System;
 using System.Collections;
 using System.Linq;
 
@@ -43,7 +44,7 @@ public class OptionConfigurationBuilderTests
     {
         var builder = new OptionsConfigurationBuilder<TestOptions>();
 
-        Assert.Throws<OptionsConfigurationException>(() => builder.Add(null, "Name"));
+        Assert.Throws<OptionsConfigurationException>((Action)(() => builder.Add(null, "Name")));
     }
 
     [Test]
@@ -51,7 +52,7 @@ public class OptionConfigurationBuilderTests
     {
         var builder = new OptionsConfigurationBuilder<TestOptions>();
 
-        Assert.Throws<OptionsConfigurationException>(() => builder.Add("", "Name"));
+        Assert.Throws<OptionsConfigurationException>((Action)(() => builder.Add("", "Name")));
     }
 
     [Test]
@@ -60,7 +61,7 @@ public class OptionConfigurationBuilderTests
         var builder = new OptionsConfigurationBuilder<TestOptions>()
             .Add("name", "Name").ForString(x => x.Name);
 
-        Assert.Throws<OptionsConfigurationException>(() => builder.Add("name", "Name"));
+        Assert.Throws<OptionsConfigurationException>((Action)(() => builder.Add("name", "Name")));
     }
 
     private static int Count(IEnumerable enumerable)

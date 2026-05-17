@@ -14,7 +14,7 @@ public class ReflectedCommandHandlerTests
     [Test]
     public void Ctor_WithNullHandler_ThrowsInvalidReflectedObjectException()
     {
-        Assert.Throws<InvalidReflectedObjectException>(() => new ReflectedCommandHandler(null));
+        Assert.Throws<InvalidReflectedObjectException>((Action)(() => new ReflectedCommandHandler(null)));
     }
 
     [Test]
@@ -42,13 +42,13 @@ public class ReflectedCommandHandlerTests
     [Test]
     public void Ctor_WithNonCommandHandlerObject_ThrowsInvalidReflectedObjectException()
     {
-        Assert.Throws<InvalidReflectedObjectException>(() => new ReflectedCommandHandler(""));
+        Assert.Throws<InvalidReflectedObjectException>((Action)(() => new ReflectedCommandHandler("")));
     }
 
     [Test]
     public void Ctor_WithCommandHandlerObject_NoExceptionThrown()
     {
-        Assert.DoesNotThrow(() => new ReflectedCommandHandler(new RecordingCommandHandler()));
+        Assert.DoesNotThrow((Action)(() => new ReflectedCommandHandler(new RecordingCommandHandler())));
     }
 
     [Test]
