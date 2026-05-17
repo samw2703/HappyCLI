@@ -1,8 +1,16 @@
-# BaseCLI
+# HappyCLI
+
+[![NuGet Version](https://img.shields.io/nuget/v/HappyCLI.svg)](https://www.nuget.org/packages/HappyCLI/)
+[![.NET Support](https://img.shields.io/badge/.NET-8%20%7C%209%20%7C%2010-512BD4)](https://dotnet.microsoft.com/)
+[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
 Provides a simple reflection based service setup for creating a cli. Useful for creating internal tools.
 
-Give it a go get the nuget package from [here](https://www.nuget.org/packages/BaseCLI/).
+## Installation
+
+```
+dotnet add package HappyCLI
+```
 
 ## How to create a command
 

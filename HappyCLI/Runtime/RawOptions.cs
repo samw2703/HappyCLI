@@ -1,6 +1,6 @@
 namespace HappyCLI.Runtime;
 
-public class RawOptions
+internal class RawOptions
 {
     private readonly List<string> _rawOptions;
 
