@@ -15,6 +15,8 @@ public class HappyCLIPublicTests
     [Test]
     public async Task Execute_WhenResultIsEmpty_DoesNotInvokeOutputHandler()
     {
+        Assert.Fail();
+
         var outputs = new List<string>();
 
         await PublicHappyCLI.Execute(
