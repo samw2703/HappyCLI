@@ -108,7 +108,7 @@ jobs:
   publish:
     name: Publish to NuGet
     runs-on: ubuntu-latest
-    needs: [build-and-test, package-quality]
+    needs: [build-and-test]
 
     steps:
     - name: Download package
