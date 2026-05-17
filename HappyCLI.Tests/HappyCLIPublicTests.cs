@@ -23,7 +23,7 @@ public class HappyCLIPublicTests
             setupCustomServices: services => services.AddSingleton<IHappyCLI>(new StubHappyCLI(string.Empty)),
             outputHandler: outputs.Add);
 
-        Assert.That(outputs, Is.Empty);
+        Assert.That(outputs, Is.Empty); 
     }
 
     [Test]
