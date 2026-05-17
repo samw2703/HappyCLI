@@ -1,15 +1,23 @@
-# BaseCLI
+# HappyCLI
+
+[![NuGet Version](https://img.shields.io/nuget/v/HappyCLI.svg)](https://www.nuget.org/packages/HappyCLI/)
+[![.NET Support](https://img.shields.io/badge/.NET-8%20%7C%209%20%7C%2010-512BD4)](https://dotnet.microsoft.com/)
+[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
 Provides a simple reflection based service setup for creating a cli. Useful for creating internal tools.
 
-Give it a go get the nuget package from [here](https://www.nuget.org/packages/BaseCLI/).
+## Installation
+
+```
+dotnet add package HappyCLI
+```
 
 ## How to create a command
 
-First create a class to represent the arguments for a given cli command...
+First create a class to represent the options for a given cli command...
 
 ```csharp
-public class ExampleArgs
+public class ExampleOptions
 {
     public string Str { get; set; }
     public int Int { get; set; }
@@ -19,49 +27,50 @@ public class ExampleArgs
 }
 ```
 
-Then implement `ICommand<ExampleArgs>`...
+Then implement `ICommandHandler<ExampleOptions>`...
 
 ```csharp
-public class ExampleCommand : ICommand<ExampleArgs>
+public class ExampleCommand : ICommandHandler<ExampleOptions>
 {
-    public string Name { get; } = "C1";
-    public string Description { get; } = "An example of a command";
+    public string CommandName { get; } = "C1";
+    public string CommandDescription { get; } = "An example of a command";
 	
-    public ArgInfoCollection<ExampleArgs> ArgInfoCollection { get; } = new ArgInfoBuilder<ExampleArgs>()
+    public OptionsConfiguration<ExampleOptions> OptionsConfiguration { get; } = new OptionsConfigurationBuilder<ExampleOptions>()
         .Add("s", "Str").ForString(x => x.Str)
         .Add("i", "Int").ForInt(x => x.Int)
-        .Add("sc", "Str Col").ForMandatoryStringCollection(x => x.StrCol)
+        .Add("sc", "Str Col").ForStringCollection(x => x.StrCol, true)
         .Add("ic", "Int Col").ForIntCollection(x => x.IntCol)
         .Add("b", "Bool").ForBool(x => x.Bool)
         .Build();
 		
-    public void Execute(ExampleArgs args)
+    public Task ExecuteCommand(ExampleOptions options)
     {
-        Console.WriteLine(args.Str);
-        Console.WriteLine(args.Int);
+        Console.WriteLine(options.Str);
+        Console.WriteLine(options.Int);
 
-        foreach (var str in args.StrCol)
+        foreach (var str in options.StrCol)
             Console.WriteLine(str);
 
-        foreach (var i in args.IntCol)
+        foreach (var i in options.IntCol)
             Console.WriteLine(i);
 
-        Console.WriteLine(args.Bool);
+        Console.WriteLine(options.Bool);
+        return Task.CompletedTask;
     }
 }
 ```
 
 ### But what does all this mean?
 
-The `Name` property is the first argument that you will pass to your console app to instruct it that you want to execute `ExampleCommand`.
+The `CommandName` property is the first argument that you will pass to your console app to instruct it that you want to execute `ExampleCommand`.
 
-The `Description` property is useful when you ask for help (more on this later).
+The `CommandDescription` property is useful when you ask for help (more on this later).
 
-The `Execute` method is the method that will be executed by BaseCLI.
+The `ExecuteCommand` method is the method that will be executed by BaseCLI.
 
-### ArgInfoCollection
+### OptionsConfiguration
 
-It's important to be able to pass arguments to your commands and as you can see BaseCLI provides a useful builder interface to help set these up. There are five types of arguments currently supported which are `string`, `int`, `List<string>`, `List<int>` and `bool` and it is also possible to make arguments mandatory.
+It's important to be able to pass options to your commands and as you can see BaseCLI provides a useful builder interface to help set these up. There are five types of options currently supported which are `string`, `int`, `List<string>`, `List<int>` and `bool` and it is also possible to make options mandatory.
 
 You pass a `string` in your console like so... `-flag "test string"`
 
@@ -82,12 +91,12 @@ Simply call the following code from you console...
     {
         static void Main(string[] args)
         {
-            CLI.Execute(args, new[] { typeof(ExampleArgs).Assembly }, services => { });
+            CLI.Execute(args, new[] { typeof(ExampleOptions).Assembly }, services => { });
         }
     }
 ```
 
-As you can see you simply pass the `args` from the main method aswell as the assemblies containing your commands, optionally you can wire up your own services too.
+As you can see you simply pass the raw command-line `args` from the main method as well as the assemblies containing your commands, optionally you can wire up your own services too.
 
 ## How to execute your commands?
 executing `.\TestConsole.exe C1 -s "Test String" -i 1 -sc Hello -sc World -ic 10 -ic 20 -b` from the command line using the example above will result in the following output...

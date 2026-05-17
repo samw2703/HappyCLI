@@ -1,0 +1,130 @@
+name: Publish to Nuget Pipeline
+
+on:
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+
+permissions:
+  contents: read
+  checks: write
+
+jobs:
+  build-and-test:
+    name: Build, Test & Validate
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        dotnet-version: ['8.0.x', '9.0.x', '10.0.x']
+      fail-fast: false
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET ${{ matrix.dotnet-version }}
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ matrix.dotnet-version }}
+
+    - name: Restore dependencies
+      run: |
+        dotnet restore HappyCLI/HappyCLI.csproj
+        dotnet restore HappyCLI.Tests/HappyCLI.Tests.csproj
+      continue-on-error: false
+
+    - name: Build projects
+      run: |
+        dotnet build HappyCLI/HappyCLI.csproj --configuration Release --no-restore
+        dotnet build HappyCLI.Tests/HappyCLI.Tests.csproj --configuration Release --no-restore
+      continue-on-error: false
+
+    - name: Set .NET major version
+      run: echo "DOTNET_MAJOR=$(echo '${{ matrix.dotnet-version }}' | cut -d. -f1)" >> "$GITHUB_ENV"
+
+    - name: Run tests
+      run: |
+        dotnet test HappyCLI.Tests/HappyCLI.Tests.csproj \
+          --configuration Release \
+          --no-build \
+          --verbosity normal \
+          --framework net${DOTNET_MAJOR}.0 \
+          --results-directory ./test-results \
+          --logger "trx;LogFileName=test-results-${{ matrix.dotnet-version }}.trx"
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: test-results-${{ matrix.dotnet-version }}
+        path: ./test-results/**/*.trx
+        retention-days: 30
+
+    # Package Validation (only for .NET 10 to avoid redundancy)
+    - name: Validate package
+      if: matrix.dotnet-version == '10.0.x'
+      run: |
+        dotnet pack HappyCLI/HappyCLI.csproj \
+          --configuration Release \
+          --no-build \
+          --output ./packages \
+          --verbosity normal
+
+    - name: Upload package artifact
+      if: matrix.dotnet-version == '10.0.x'
+      uses: actions/upload-artifact@v4
+      with:
+        name: nuget-package
+        path: ./packages/*.nupkg
+        retention-days: 7
+
+  test-results-report:
+    name: Test Results Report
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    if: needs.build-and-test.result == 'failure'
+
+    steps:
+    - name: Download all test results
+      uses: actions/download-artifact@v4
+      with:
+        pattern: test-results-*
+        path: ./test-results
+        merge-multiple: true
+
+    - name: Publish test results
+      uses: EnricoMi/publish-unit-test-result-action@v2
+      with:
+        files: ./test-results/**/*.trx
+        comment_title: '🧪 Test Results'
+        check_name: Test Results
+        report_individual_runs: true
+        fail_on: nothing
+
+  publish:
+    name: Publish to NuGet
+    runs-on: ubuntu-latest
+    needs: [build-and-test, package-quality]
+
+    steps:
+    - name: Download package
+      uses: actions/download-artifact@v4
+      with:
+        name: nuget-package
+        path: ./packages
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '10.0.x'
+
+    - name: Push to NuGet
+      run: |
+        dotnet nuget push ./packages/*.nupkg \
+          --api-key ${{ secrets.NUGET_API_KEY }} \
+          --source https://api.nuget.org/v3/index.json \
+          --skip-duplicate
