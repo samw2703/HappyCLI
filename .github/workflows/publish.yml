@@ -1,4 +1,4 @@
-name: CD Pipeline
+name: Publish to Nuget Pipeline
 
 on:
   push:
